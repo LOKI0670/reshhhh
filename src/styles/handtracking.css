@@ -1,0 +1,378 @@
+/* ============================================================
+   MIST — Hand Tracking & Pinch-to-Draw Styling
+   ============================================================ */
+
+/* ─── Fingertip Virtual Cursor ───────────────────────────── */
+.ht-cursor {
+  position: fixed;
+  z-index: 999;
+  pointer-events: none;
+  transform: translate(-50%, -50%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.08s ease-out;
+  will-change: left, top, transform;
+}
+
+.ht-cursor-ring {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: 2px solid rgba(168, 204, 255, 0.75);
+  box-shadow: 0 0 16px rgba(140, 195, 255, 0.45), inset 0 0 8px rgba(140, 195, 255, 0.25);
+  backdrop-filter: blur(3px);
+  -webkit-backdrop-filter: blur(3px);
+  transition: all 0.15s ease-out;
+}
+
+.ht-cursor-dot {
+  position: absolute;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #ffffff;
+  box-shadow: 0 0 10px rgba(120, 200, 255, 0.9), 0 0 20px rgba(120, 200, 255, 0.6);
+  transition: transform 0.15s ease-out, background-color 0.15s ease-out;
+}
+
+.ht-cursor.pinching .ht-cursor-ring {
+  width: 26px;
+  height: 26px;
+  border-color: #38ef7d;
+  box-shadow: 0 0 22px rgba(56, 239, 125, 0.8), inset 0 0 10px rgba(56, 239, 125, 0.4);
+}
+
+.ht-cursor.pinching .ht-cursor-dot {
+  background: #38ef7d;
+  transform: scale(1.3);
+  box-shadow: 0 0 14px rgba(56, 239, 125, 1);
+}
+
+.ht-cursor-ripple {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  border: 1.5px solid rgba(56, 239, 125, 0.8);
+  animation: htRipple 0.8s cubic-bezier(0.1, 0.7, 0.3, 1) infinite;
+}
+
+@keyframes htRipple {
+  0% {
+    transform: scale(0.8);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(2.2);
+    opacity: 0;
+  }
+}
+
+/* ─── Hand Tracking Overlay Guide ────────────────────────── */
+.ht-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  pointer-events: none;
+  z-index: 45;
+  background: radial-gradient(circle at center, rgba(15, 17, 24, 0.4) 0%, rgba(10, 11, 16, 0.75) 100%);
+  transition: opacity 0.3s ease;
+}
+
+.ht-overlay-content {
+  pointer-events: auto;
+  background: rgba(18, 21, 30, 0.88);
+  backdrop-filter: blur(28px) saturate(1.7);
+  -webkit-backdrop-filter: blur(28px) saturate(1.7);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  border-radius: var(--radius-xl);
+  padding: 32px 36px;
+  text-align: center;
+  max-width: 440px;
+  box-shadow: 0 24px 64px rgba(0, 0, 0, 0.6), 0 0 40px rgba(168, 184, 216, 0.12);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.ht-overlay-compact {
+  position: absolute;
+  bottom: 84px;
+  background: rgba(18, 21, 30, 0.75);
+  padding: 10px 24px;
+  border-radius: var(--radius-full);
+  pointer-events: none;
+  max-width: fit-content;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+.ht-overlay-title {
+  font-family: var(--font-serif);
+  font-size: 22px;
+  font-weight: 500;
+  color: var(--color-text-primary);
+  margin-top: 14px;
+  letter-spacing: 0.02em;
+}
+
+.ht-overlay-sub {
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  margin-top: 6px;
+  line-height: 1.5;
+}
+
+.ht-overlay-hint {
+  font-size: 13px;
+  color: var(--color-accent);
+  letter-spacing: 0.03em;
+  font-weight: 500;
+}
+
+/* Spinner */
+.ht-spinner {
+  display: inline-block;
+  position: relative;
+  width: 48px;
+  height: 48px;
+}
+
+.ht-spinner div {
+  box-sizing: border-box;
+  display: block;
+  position: absolute;
+  width: 40px;
+  height: 40px;
+  margin: 4px;
+  border: 3px solid #a8b8d8;
+  border-radius: 50%;
+  animation: htSpinnerAnim 1.2s cubic-bezier(0.5, 0, 0.5, 1) infinite;
+  border-color: #a8b8d8 transparent transparent transparent;
+}
+
+.ht-spinner div:nth-child(1) { animation-delay: -0.45s; }
+.ht-spinner div:nth-child(2) { animation-delay: -0.3s; }
+.ht-spinner div:nth-child(3) { animation-delay: -0.15s; }
+
+@keyframes htSpinnerAnim {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+.ht-overlay-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: rgba(239, 68, 68, 0.15);
+  color: #ef4444;
+  border: 1px solid rgba(239, 68, 68, 0.3);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 20px;
+}
+
+/* Hand illustration */
+.ht-hand-guide {
+  width: 80px;
+  height: 100px;
+  margin-bottom: 6px;
+  animation: htFloat 3s ease-in-out infinite;
+}
+
+@keyframes htFloat {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+/* Steps list */
+.ht-steps {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 20px;
+  text-align: left;
+  width: 100%;
+}
+
+.ht-step {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 13px;
+  color: var(--color-text-secondary);
+  background: rgba(255, 255, 255, 0.03);
+  padding: 8px 12px;
+  border-radius: var(--radius-md);
+  border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.ht-step-num {
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: var(--color-accent-soft);
+  border: 1px solid rgba(168, 184, 216, 0.35);
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--color-accent);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+/* ─── Compact Status Badge ───────────────────────────────── */
+.ht-status-badge {
+  position: absolute;
+  top: 18px;
+  right: 20px;
+  z-index: 40;
+  padding: 6px 14px;
+  border-radius: var(--radius-full);
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  background: rgba(15, 18, 28, 0.72);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  color: var(--color-text-secondary);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  pointer-events: none;
+  box-shadow: 0 4px 14px rgba(0, 0, 0, 0.3);
+}
+
+.ht-status-badge.drawing {
+  background: rgba(56, 239, 125, 0.2);
+  border-color: rgba(56, 239, 125, 0.6);
+  color: #38ef7d;
+  box-shadow: 0 0 16px rgba(56, 239, 125, 0.35);
+}
+
+/* Hide standard cursor when hand tracking active */
+.cursor-none {
+  cursor: none !important;
+}
+
+/* ─── Hand Skeleton Canvas ───────────────────────────────── */
+.ht-skeleton-canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 25;
+}
+
+/* ─── Magnetic Pinch Feedback Ring ───────────────────────── */
+.ht-cursor-meter {
+  position: absolute;
+  width: 48px;
+  height: 48px;
+  border-radius: 50%;
+  border: 1px dashed rgba(168, 204, 255, 0.4);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  transition: all 0.08s ease-out;
+}
+
+/* ─── Breath Condensation Indicator & Controls ───────────── */
+.breath-indicator {
+  position: absolute;
+  bottom: calc(var(--toolbar-height) + 16px);
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 45;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 18px;
+  border-radius: var(--radius-full);
+  background: rgba(16, 20, 32, 0.85);
+  backdrop-filter: blur(20px) saturate(1.8);
+  -webkit-backdrop-filter: blur(20px) saturate(1.8);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 20px rgba(168, 204, 255, 0.15);
+  transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+  animation: slideUp 0.35s ease;
+}
+
+.breath-indicator.blowing {
+  border-color: rgba(168, 216, 255, 0.6);
+  background: rgba(24, 32, 52, 0.92);
+  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.6), 0 0 30px rgba(168, 216, 255, 0.35);
+}
+
+.breath-icon {
+  font-size: 16px;
+  animation: htFloat 2s ease-in-out infinite;
+}
+
+.breath-indicator.blowing .breath-icon {
+  animation: breathPulse 0.5s ease-in-out infinite alternate;
+}
+
+@keyframes breathPulse {
+  0% { transform: scale(1) translateX(0); }
+  100% { transform: scale(1.25) translateX(3px); }
+}
+
+.breath-text {
+  font-size: 12px;
+  font-weight: 500;
+  letter-spacing: 0.02em;
+  color: var(--color-text-primary);
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.breath-meter-bar {
+  width: 50px;
+  height: 4px;
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.12);
+  overflow: hidden;
+  position: relative;
+}
+
+.breath-meter-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #82c8ff, #ffffff);
+  border-radius: 2px;
+  transition: width 0.06s ease-out;
+  box-shadow: 0 0 8px #82c8ff;
+}
+
+/* Manual Blow Button */
+.btn-blow {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 12px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
+  color: var(--color-text-primary);
+  font-size: 11px;
+  font-weight: 600;
+  letter-spacing: 0.03em;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-blow:hover {
+  background: rgba(255, 255, 255, 0.15);
+  border-color: rgba(255, 255, 255, 0.3);
+}
+
+.btn-blow:active, .btn-blow.active {
+  background: rgba(168, 204, 255, 0.3);
+  border-color: #82c8ff;
+  color: #ffffff;
+  transform: scale(0.97);
+}
