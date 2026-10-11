@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # MIST — The Virtual Fog Mirror
 
 > _"Your mirror. Your mood. Your moment."_
@@ -252,3 +253,6 @@ Tests run in a jsdom environment with mocked canvas, MediaDevices, and ResizeObs
 ---
 
 Made with ❤️ and a little fog.
+=======
+# reshhhh
+>>>>>>> 1a64834b6263168b37221a8a2b961b28e4053b05
