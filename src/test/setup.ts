@@ -9,6 +9,7 @@ const mockCtx = {
   fill: vi.fn(),
   save: vi.fn(),
   restore: vi.fn(),
+  clip: vi.fn(),
   drawImage: vi.fn(),
   putImageData: vi.fn(),
   getImageData: vi.fn(() => ({

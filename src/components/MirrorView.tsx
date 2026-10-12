@@ -210,6 +210,7 @@ export const MirrorView: React.FC<MirrorViewProps> = ({
   const [isSettingsOpen, setIsSettingsOpen] = useState(false);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showHint, setShowHint] = useState(true);
+  const [hasFog, setHasFog] = useState(false);
 
   // Hand tracking state
   const [handState, setHandState] = useState<HandTrackingState>({
@@ -271,6 +272,7 @@ export const MirrorView: React.FC<MirrorViewProps> = ({
     undo,
     redo,
     resetFog,
+    clearFog,
     reinitFog,
     depositBreathFog,
     finalizeBreathStroke,
@@ -329,6 +331,7 @@ export const MirrorView: React.FC<MirrorViewProps> = ({
       // Condense directly at the mouth position on the mirror!
       depositBreathFog(breathState.intensity, breathState.mouthPosition ?? undefined);
       wasBlowingRef.current = true;
+      setHasFog(true);
     } else if (wasBlowingRef.current && !breathState.isBlowing) {
       finalizeBreathStroke();
       wasBlowingRef.current = false;
@@ -337,6 +340,7 @@ export const MirrorView: React.FC<MirrorViewProps> = ({
   }, [breathState.isBlowing, breathState.intensity, breathState.mouthPosition, depositBreathFog, finalizeBreathStroke, showToast]);
 
   const handleStartBlow = useCallback(() => {
+    setHasFog(true);
     faceBreathTrackerRef.current?.setManualBlowing(true, 0.95);
   }, []);
 
@@ -897,7 +901,9 @@ export const MirrorView: React.FC<MirrorViewProps> = ({
         {/* Interaction hint (wipe / write) */}
         {showHint && (mode === 'wipe' || mode === 'write') && (
           <p className="mirror-hint" aria-hidden="true">
-            {mode === 'wipe' ? 'Drag to wipe away the fog' : 'Draw or write freely'}
+            {hasFog
+              ? (mode === 'wipe' ? 'Drag to wipe away the fog' : 'Draw or write freely on the fog')
+              : '💨 Blow at your screen (or hold "Blow" / press B) to fog the mirror'}
           </p>
         )}
 
@@ -944,7 +950,7 @@ export const MirrorView: React.FC<MirrorViewProps> = ({
         canRedo={canRedo}
         onUndo={undo}
         onRedo={redo}
-        onResetFog={() => { resetFog(); showToast('Fog restored'); }}
+        onResetFog={() => { clearFog(); setHasFog(false); showToast('Mirror cleared'); }}
         onSave={handleSave}
         handTrackingEnabled={true}
         isBlowing={breathState.isBlowing}

@@ -21,6 +21,8 @@ export interface UseFogCanvasReturn {
   undo: () => void;
   redo: () => void;
   resetFog: () => void;
+  clearFog: () => void;
+  restoreFullFog: () => void;
   reinitFog: (preset?: FogPreset, density?: number, droplets?: number) => void;
   depositBreathFog: (intensity: number, focalPoint?: Point) => void;
   finalizeBreathStroke: () => void;
@@ -130,6 +132,16 @@ export function useFogCanvas(
     updateUndoRedo();
   }, [updateUndoRedo]);
 
+  const clearFog = useCallback(() => {
+    rendererRef.current?.clearFog();
+    updateUndoRedo();
+  }, [updateUndoRedo]);
+
+  const restoreFullFog = useCallback(() => {
+    rendererRef.current?.restoreFullFog();
+    updateUndoRedo();
+  }, [updateUndoRedo]);
+
   const reinitFog = useCallback((
     preset?: FogPreset,
     density?: number,
@@ -165,6 +177,8 @@ export function useFogCanvas(
     undo,
     redo,
     resetFog,
+    clearFog,
+    restoreFullFog,
     reinitFog,
     depositBreathFog,
     finalizeBreathStroke,

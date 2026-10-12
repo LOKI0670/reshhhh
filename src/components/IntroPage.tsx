@@ -69,9 +69,9 @@ export const IntroPage: React.FC<IntroPageProps> = ({
         {/* Three-step guide */}
         <div className="intro-steps" role="list" aria-label="How it works">
           {[
-            { n: '1', label: 'Look into your mirror' },
-            { n: '2', label: 'Draw by pinching fingers in the air or wiping screen' },
-            { n: '3', label: 'Reveal your reflection & save your creation' },
+            { n: '1', label: 'Look into your clear mirror' },
+            { n: '2', label: 'Blow at the screen to condense warm fog 💨' },
+            { n: '3', label: 'Wipe or draw with your finger, mouse, or air-pinch ✨' },
           ].map((step) => (
             <div key={step.n} className="intro-step" role="listitem">
               <div className="intro-step-number" aria-hidden="true">{step.n}</div>

@@ -37,7 +37,7 @@ export class FogRenderer {
   }
 
   /** Initialize (or re-initialize) the fog texture */
-  initFog(seed?: number): void {
+  initFog(seed?: number, startWithFog = false): void {
     const { width, height } = this.canvas;
     this.fogTexture = createFogTextureCanvas(
       width,
@@ -47,17 +47,27 @@ export class FogRenderer {
       this.options.dropletIntensity,
       seed
     );
-    this.restoreFullFog();
+    this.ctx.clearRect(0, 0, width, height);
+    if (startWithFog) {
+      this.restoreFullFog();
+    }
     this.history.clear();
   }
 
-  /** Draw the current fog texture onto the canvas */
+  /** Draw the full fog texture onto the canvas (fill entire mirror) */
   restoreFullFog(): void {
     if (!this.fogTexture) return;
     const { width, height } = this.canvas;
     this.ctx.clearRect(0, 0, width, height);
     this.ctx.globalCompositeOperation = 'source-over';
     this.ctx.drawImage(this.fogTexture, 0, 0, width, height);
+  }
+
+  /** Clear all fog from canvas back to clean glass */
+  clearFog(): void {
+    const current = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
+    this.history.push(current);
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   /** Begin a stroke at the given point */
@@ -164,12 +174,12 @@ export class FogRenderer {
     return false;
   }
 
-  /** Clear all erased areas and restore full fog */
+  /** Clear all erased areas or clear the mirror */
   resetFog(): void {
     // Push current state for undo before reset
     const current = this.ctx.getImageData(0, 0, this.canvas.width, this.canvas.height);
     this.history.push(current);
-    this.restoreFullFog();
+    this.ctx.clearRect(0, 0, this.canvas.width, this.canvas.height);
   }
 
   /**
@@ -181,31 +191,38 @@ export class FogRenderer {
     const { width, height } = this.canvas;
     const ctx = this.ctx;
 
-    // Breath focal center defaults to lower center of screen where breath naturally hits
+    // Breath focal center defaults to mouth location or center of mirror
     const cx = focalPoint?.x ?? width / 2;
-    const cy = focalPoint?.y ?? height * 0.62;
-    const maxRadius = Math.max(width, height) * 0.65;
-    const breathRadius = maxRadius * (0.35 + intensity * 0.65);
+    const cy = focalPoint?.y ?? height * 0.58;
+    const baseRadius = Math.min(width, height) * 0.35;
+    const breathRadius = baseRadius * (0.6 + intensity * 0.85);
 
     ctx.save();
-    
-    // 1. Soft radial heat/moisture plume gradient
     ctx.globalCompositeOperation = 'source-over';
-    const grad = ctx.createRadialGradient(cx, cy, 0, cx, cy, breathRadius);
-    const alpha = Math.min(0.25, intensity * 0.15);
-    grad.addColorStop(0, `rgba(235, 240, 250, ${alpha * 1.3})`);
-    grad.addColorStop(0.35, `rgba(225, 232, 245, ${alpha})`);
-    grad.addColorStop(0.7, `rgba(215, 222, 240, ${alpha * 0.45})`);
-    grad.addColorStop(1, 'rgba(210, 218, 238, 0)');
 
-    ctx.fillStyle = grad;
+    // 1. Soft radial heat/moisture plume gradient
+    const plumeGrad = ctx.createRadialGradient(cx, cy, 0, cx, cy, breathRadius);
+    const alpha = Math.min(0.35, intensity * 0.22);
+    const [r, g, b] = this.options.preset.color.split(',').map((s) => Number(s.trim()) || 232);
+
+    plumeGrad.addColorStop(0, `rgba(${r}, ${g}, ${b}, ${alpha * 1.5})`);
+    plumeGrad.addColorStop(0.35, `rgba(${r}, ${g}, ${b}, ${alpha * 1.0})`);
+    plumeGrad.addColorStop(0.7, `rgba(${r}, ${g}, ${b}, ${alpha * 0.4})`);
+    plumeGrad.addColorStop(1, `rgba(${r}, ${g}, ${b}, 0)`);
+
+    ctx.fillStyle = plumeGrad;
     ctx.beginPath();
     ctx.arc(cx, cy, breathRadius, 0, Math.PI * 2);
     ctx.fill();
 
-    // 2. Blend back full texture to restore detailed noise & droplet moisture over erased areas
-    ctx.globalAlpha = Math.min(0.2, intensity * 0.12);
+    // 2. Blend the velvety frosted texture localized strictly within the breath plume
+    ctx.save();
+    ctx.beginPath();
+    ctx.arc(cx, cy, breathRadius, 0, Math.PI * 2);
+    ctx.clip?.();
+    ctx.globalAlpha = Math.min(0.28, intensity * 0.18);
     ctx.drawImage(this.fogTexture, 0, 0, width, height);
+    ctx.restore();
 
     ctx.restore();
   }

@@ -214,9 +214,9 @@ export const Toolbar: React.FC<ToolbarProps> = ({
         <button
           className="btn-icon"
           onClick={onResetFog}
-          aria-label="Reset fog — restore full fog"
+          aria-label="Clear mirror"
           id="reset-fog-btn"
-          data-tooltip="Reset Fog"
+          data-tooltip="Clear Mirror"
         >
           <ResetIcon />
         </button>
