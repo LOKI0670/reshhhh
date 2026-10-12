@@ -5,6 +5,14 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   base: '/reshhhh/',
   plugins: [react()],
+  optimizeDeps: {
+    exclude: ['@mediapipe/tasks-vision'],
+  },
+  build: {
+    rollupOptions: {
+      external: [],
+    },
+  },
   test: {
     globals: true,
     environment: 'jsdom',
